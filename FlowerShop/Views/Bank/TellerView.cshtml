@@ -1,0 +1,245 @@
+﻿
+@model IEnumerable<FlowerShop.Models.BankEntityFramework.User>
+@using System.Globalization
+
+@{ 
+    //is used to store the selected user id from the selected account
+    var selectedUserId = ViewBag.SelectedUserId as int?;
+    //is used to store the selected account id
+    var selectedAccountId = ViewBag.SelectedAccountId as int?;
+    //is used to selected the users data within an account
+    var selectedUser = Model.SelectMany(u => u.Accounts, (u, a) => new { User = u, Account = a })
+                           .FirstOrDefault(pair => pair.Account.account_id == selectedAccountId)?.User;
+    //transactions servers as the database model
+    var transactions = ViewBag.AccountTransactions as List<FlowerShop.Models.BankEntityFramework.Transaction>; }
+
+<html>
+<head>
+    <title>Teller View</title>
+    <link rel="stylesheet" href="../../Content/style.css">
+  
+</head>
+<body>
+    <div class="container">
+        <div class="nav-buttons">
+            <a href="/Bank/BankHomePage">Account Holder Creator Window</a>
+            <a href="/Bank/BankDataView">Account Holder Viewer Window</a>
+            <a href="/Bank/BankAccountCreatorView">Account Creator Window</a>
+            <a href="/Bank/TellerView">Teller Window</a>
+        </div>
+
+        <div class="flex-container">
+            <div class="left-pane">
+                <h2>Enter Account ID</h2>
+                <form method="get" action="/Bank/TellerView">
+                    <input type="number" name="selectedAccountId" placeholder="Enter Account ID" required value="@selectedAccountId" />
+                    <button type="submit">Submit</button>
+                </form>
+                @*checks to see if the selectedAccountId is not null*@
+                @if (selectedAccountId != null)
+                {
+                    <h2>Perform Transactions</h2>
+                    <form id="transactionForm">
+                        <input type="hidden" name="accountId" value="@selectedAccountId" />
+
+                        <label>Transaction Types (space-separated: SD SW TF):</label>
+                        <input type="text" id="transactionTypes" name="transactionTypes" required />
+
+                        <div id="transactionFields"></div>
+
+                        <button type="submit">Submit Transactions</button>
+                    </form>
+                }
+            </div>
+
+            <div class="right-pane">
+                <div id="searchTableContainer" class="@(selectedAccountId != null ? "hidden" : "")">
+                    <h3>Search Accounts</h3>
+                    <form method="get" action="/Bank/TellerView" id="searchForm">
+                        <input type="text" id="accountSearchBox" name="searchFilter" placeholder="Search by Name, Phone, DOB..." value="@Request.QueryString["searchFilter"]" />
+                        <div class="scrollable-table">
+                            <table id="accountSearchTable">
+                                <thead>
+                                    <tr>
+                                        <th>Account ID</th>
+                                        <th>Account Name</th>
+                                        <th>Account Type</th>
+                                        <th>Description</th>
+                                        <th>Full Name</th>
+                                        <th>Date of Birth</th>
+                                        <th>Phone Number</th>
+                                        <th>SSN</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @*goes through each user within the model*@
+                                    @foreach (var user in Model)
+                                    {
+                                        //is used to hold the users contact information
+                                        var contact = user.ContactInfoes.FirstOrDefault();
+                                        //goes through each account within accounts
+                                        foreach (var acc in user.Accounts)
+                                        {
+                                            <tr>
+                                                <td><a href="/Bank/TellerView?selectedAccountId=@acc.account_id">@acc.account_id</a></td>
+                                                <td>@acc.account_name</td>
+                                                <td>@acc.account_type</td>
+                                                <td>@acc.account_desc</td>
+                                                <td>@user.first_name @user.last_name</td>
+                                                <td>@user.date_of_birth.ToString("MM/dd/yyyy")</td>
+                                                <td>@(contact?.phone_number ?? "N/A")</td>
+                                                <td>@(contact?.social_security_number?.Length == 11 ? contact.social_security_number.Substring(7, 4) : "N/A")</td>
+                                            </tr>
+}
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+                @*checks to see if the selected account and user the account is attached to is not null*@
+                @if (selectedAccountId != null && selectedUser != null)
+                {
+                    //selectedAccount is used to hold the selected account id used to perform an transaction on
+                    var selectedAccount = selectedUser.Accounts.FirstOrDefault(a => a.account_id == selectedAccountId);
+                    //checks to see if the selectedAccount id is not null
+                    if (selectedAccount != null)
+                    {
+                        <h3>Connected Accounts</h3>
+                        <div class="scrollable-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Account ID</th>
+                                        <th>Account Name</th>
+                                        <th>Account Type</th>
+                                        <th>Balance</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @*goes through each account within accounts*@
+                                    @foreach (var acc in selectedUser.Accounts)
+                                    {
+                                        <tr>
+                                            <td><a href="/Bank/TellerView?selectedAccountId=@acc.account_id">@acc.account_id</a></td>
+                                            <td>@acc.account_name</td>
+                                            <td>@acc.account_type</td>
+                                            <td>@acc.balance</td>
+                                            <td>@acc.account_desc</td>
+                                        </tr>
+                                     }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h4>Account Owner Details</h4>
+                        <table>
+                            <tr>
+                                <th>Full Name</th>
+                                <th>Date of Birth</th>
+                                <th>Phone Number</th>
+                                <th>SSN</th>
+                            </tr>
+                            <tr>
+                                <td>@selectedUser.first_name @selectedUser.last_name</td>
+                                <td>@selectedUser.date_of_birth.ToString("MM/dd/yyyy")</td>
+                                <td>@(selectedUser.ContactInfoes.FirstOrDefault()?.phone_number ?? "N/A")</td>
+                                <td>@(selectedUser.ContactInfoes.FirstOrDefault()?.social_security_number?.Length == 11 ? selectedUser.ContactInfoes.FirstOrDefault().social_security_number.Substring(7, 4) : "N/A")</td>
+                            </tr>
+                        </table> 
+                            //checks to see if any transactions exist
+                            if (transactions != null && transactions.Any())
+                            {
+                            <div id="transactionHistory">
+                                <h4>Transaction History</h4>
+                                <div class="scrollable-table">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Name</th>
+                                                <th>Description</th>
+                                                <th>Type</th>
+                                                <th>Amount</th>
+                                                <th>Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @*is used to go through each transaction*@
+                                            @foreach (var t in transactions)
+                                            {
+                                                <tr>
+                                                    <td>@t.transact_id</td>
+                                                    <td>@t.transact_name</td>
+                                                    <td>@t.transact_desc</td>
+                                                    <td>@t.transact_type</td>
+                                                    <td>$@t.transact_amount</td>
+                                                    <td>@t.transact_date.ToString("MM/dd/yyyy HH:mm")</td>
+                                                </tr>
+                                             }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            //checks for an valid id
+            const validIds = [
+                @string.Join(",", Model.SelectMany(u => u.Accounts).Select(a => a.account_id))
+            ];
+            //is used to check when the input for the selectedAccountId is entered checks to see if id exist using validIds
+            $('form[action="/Bank/TellerView"] input[name="selectedAccountId"]').on('blur', function () {
+                const enteredId = parseInt($(this).val());
+                if (!validIds.includes(enteredId)) {
+                    alert("Account ID does not exist. Restarting.");
+                    window.location.href = '/Bank/TellerView';
+                }
+            });
+
+            //makes sure the transaction display stays on screen until the transaction submit button is pressed
+            $('#transactionForm').on('submit', function (e) {
+                e.preventDefault();
+                const formData = $(this).serialize();
+                $.post('/Bank/TellerView', formData, function () {
+                    window.location.href = '/Bank/TellerView';
+                });
+            });
+            //this is used to generate different transaction inputs to appear based on what transaction type is being entered in
+            $('#transactionTypes').on('input', function () {
+                const types = $(this).val().toUpperCase().split(/\s+/);
+                const fields = $('#transactionFields');
+                fields.empty();
+
+                if (types.includes('SD')) {
+                    fields.append('<label>Share Deposit:</label><input type="number" name="amount_SD" step="0.01" required /><br /><br />');
+                }
+                if (types.includes('SW')) {
+                    fields.append('<label>Share Withdraw:</label><input type="number" name="amount_SW" step="0.01" required /><br /><br />');
+                }
+                if (types.includes('TF')) {
+                    fields.append('<label>Transfer Amount:</label><input type="number" name="amount_TF" step="0.01" required /><br /><br />');
+                    fields.append('<label>Transfer To (Account ID):</label><input type="number" name="recipientAccountId_TF" required /><br /><br />');
+                }
+            });
+            //filliters out different accounts based off of what is put inside of accountSearchBox 
+            //example 11/05/2004, 888-88-8888, joe this will look up accounts by there birthday, ssn and name
+            $('#accountSearchBox').on('input', function () {
+                const filters = $(this).val().toLowerCase().split(',').map(f => f.trim());
+                $('#accountSearchTable tbody tr').each(function () {
+                    const rowText = $(this).text().toLowerCase();
+                    let visible = filters.every(f => rowText.includes(f));
+                    $(this).toggle(visible);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

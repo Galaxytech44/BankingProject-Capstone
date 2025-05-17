@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="ee06b2af92f740faac6e832fb2f83924" Name="Diagram1">
+        <EntityTypeShape EntityType="BANKDATAModel1.Address" Width="1.5" PointX="2.625" PointY="2.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="BANKDATAModel1.ContactInfo" Width="1.5" PointX="5" PointY="5.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="BANKDATAModel1.User" Width="1.5" PointX="5.125" PointY="2.375" IsExpanded="true" />
+        <AssociationConnector Association="BANKDATAModel1.FK__Addresses__useri__38996AB5" ManuallyRouted="false" />
+        <AssociationConnector Association="BANKDATAModel1.FK__ContactIn__useri__3E52440B" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="BANKDATAModel1.Account" Width="1.5" PointX="7.375" PointY="2.25" />
+        <AssociationConnector Association="BANKDATAModel1.FK__Accounts__userid__4AB81AF0" />
+        <EntityTypeShape EntityType="BANKDATAModel1.Transaction" Width="1.5" PointX="7.25" PointY="5.875" />
+        <AssociationConnector Association="BANKDATAModel1.FK__Transacti__accou__5EBF139D" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

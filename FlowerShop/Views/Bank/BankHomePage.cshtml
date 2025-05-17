@@ -1,0 +1,116 @@
+﻿
+@{ ViewBag.Title = "Bank User Registration"; }
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link rel="stylesheet" href="../../Content/style.css">
+   
+</head>
+<body>
+    <div class="container">
+        <header></header>
+        <div class="agrid-container">
+            <div class="nav-buttons">
+                <a href="/Bank/BankHomePage">Account Holder Creator Window</a>
+                <a href="/Bank/BankDataView">Account Holder Viewer Window</a>
+                <a href="/Bank/BankAccountCreatorView">Account Creator Window</a>
+                <a href="/Bank/TellerView">Teller Window</a>
+            </div>
+
+            <div class="container">
+                <h2>Register New Bank User</h2>
+                @*checks if the model state is valid*@
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div style="color: red;">
+                        @Html.ValidationSummary(true)
+                    </div>}
+
+                @*this part acts as our form which is used to submit information to the BankHomePage controller to 
+                create a new user entry*@
+                @using (Html.BeginForm("BankHomePage", "Bank", FormMethod.Post, new { onsubmit = "return validateEmailMatch();" }))
+                {
+                    <table style="border: 1px solid #777; width: 100%;">
+                        <tr>
+                            <td><label for="firstName">First Name</label></td>
+                            <td><input type="text" id="firstName" name="first_name" required /></td>
+
+                            <td><label for="lastName">Last Name</label></td>
+                            <td><input type="text" id="lastName" name="last_name" required /></td>
+                        </tr>
+                        <tr>
+                            <td><label for="email">Email Address</label></td>
+                            <td><input type="email" id="email" name="email_address" required /></td>
+
+                            <td><label for="confirmEmail">Confirm Email Address</label></td>
+                            <td><input type="email" id="confirmEmail" name="confirm_email_address" required /></td>
+                        </tr>
+                        <tr>
+                            <td><label for="dob">Date of Birth</label></td>
+                            <td><input type="date" id="dob" name="date_of_birth" required /></td>
+
+                            <td><label for="accountCreated">Account Creation Date</label></td>
+                            <td><input type="date" id="accountCreated" name="account_creation_date" disabled value="@DateTime.Now.ToString("yyyy-MM-dd")" /></td>
+                        </tr>
+                        <tr>
+                            <td><label for="road">Address</label></td>
+                            <td><input type="text" id="road" name="road_name" required /></td>
+
+                            <td><label for="city">City</label></td>
+                            <td><input type="text" id="city" name="city" required /></td>
+                        </tr>
+                        <tr>
+                            <td><label for="state">State</label></td>
+                            <td><input type="text" id="state" name="state" required /></td>
+
+                            <td><label for="zipcode">Zip Code</label></td>
+                            <td>
+                                <input type="text" id="zipcode" name="zip_code" required pattern="^\d{5}$"
+                                       title="Zip code must be 5 digits (e.g., 12345)" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label for="phone">Phone Number</label></td>
+                            <td>
+                                <input type="tel" id="phone" name="phone_number" required
+                                       pattern="^\d{3}-\d{3}-\d{4}$"
+                                       title="Phone must be in the format ###-###-####" />
+                            </td>
+
+                            <td><label for="ssn">Social Security Number</label></td>
+                            <td>
+                                <input type="text" id="ssn" name="social_security_number" required
+                                       pattern="^\d{3}-\d{2}-\d{4}$"
+                                       title="SSN must be in the format ###-##-####" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button type="submit" id="save-btn">Save</button>
+                                <button type="reset">Reset</button>
+                            </td>
+                        </tr>
+                    </table>}
+            </div>
+        </div>
+        <footer></footer>
+    </div>
+    <script>
+        //checks if the email text input matches with teh confirmEmail text input
+        function validateEmailMatch() {
+            const email = document.getElementById("email").value.trim();
+            const confirmEmail = document.getElementById("confirmEmail").value.trim();
+
+            if (email !== confirmEmail) {
+                alert("Email and Confirm Email do not match.");
+                return false;
+            }
+            return true;
+        }
+    </script>
+</body>
+</html>

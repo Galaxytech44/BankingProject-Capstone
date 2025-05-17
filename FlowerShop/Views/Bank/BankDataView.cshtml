@@ -1,0 +1,228 @@
+﻿
+@{ var users = Model; }
+@model IEnumerable<FlowerShop.Models.BankEntityFramework.User>
+@using System.Globalization
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Data View</title>
+    <link rel="stylesheet" href="../../Content/style.css">
+
+</head>
+<body>
+    <div class="container">
+        <header></header>
+        <div class="agrid-container">
+            <div class="nav-buttons">
+                <a href="/Bank/BankHomePage">Account Holder Creator Window</a>
+                <a href="/Bank/BankDataView">Account Holder Viewer Window</a>
+                <a href="/Bank/BankAccountCreatorView">Account Creator Window</a>
+                <a href="/Bank/TellerView">Teller Window</a>
+            </div>
+            <div class="container">
+                <h2>Account Information Editor</h2>
+                <form id="form" method="post" action="@Url.Action("BankDataView", "Bank")" onsubmit="return validateForm()">
+                    <p></p><input id="userId" name="userid" value="(Click on an user id)">
+                    <table style="border: 1px solid #777; width: 100%;">
+                        <tr>
+                            <td><label for="firstName">First Name</label></td>
+                            <td><input type="text" id="firstName" name="first_name" required></td>
+                            <td><label for="lastName">Last Name</label></td>
+                            <td><input type="text" id="lastName" name="last_name" required></td>
+                        </tr>
+                        <tr>
+                            <td><label for="email">Email Address</label></td>
+                            <td><input type="email" id="email" name="ContactInfoes[0].email_address" required></td>
+                            <td><label for="confirmEmail">Confirm Email Address</label></td>
+                            <td><input type="email" id="confirmEmail" required></td>
+                        </tr>
+                        <tr>
+                            <td><label for="dob">Date of Birth</label></td>
+                            <td><input type="date" id="dob" name="date_of_birth" required></td>
+                            <td><label for="accountCreated">Account Creation Date</label></td>
+                            <td><input type="date" id="accountCreated" name="account_creation_date" required></td>
+                        </tr>
+                        <tr>
+                            <td><label for="road">Address</label></td>
+                            <td><input type="text" id="road" name="Addresses[0].road_name" required></td>
+                            <td><label for="city">City</label></td>
+                            <td><input type="text" id="city" name="Addresses[0].city" required></td>
+                        </tr>
+                        <tr>
+                            <td><label for="state">State</label></td>
+                            <td><input type="text" id="state" name="Addresses[0].state" required></td>
+                            <td><label for="zipcode">Zip Code</label></td>
+                            <td>
+                                <input type="text" id="zipcode" name="Addresses[0].zip_code" required pattern="^\d{5}$"
+                                       title="Zip code must be 5 digits (e.g., 12345)">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label for="phone">Phone Number</label></td>
+                            <td>
+                                <input type="tel" id="phone" name="ContactInfoes[0].phone_number" required
+                                       pattern="^\d{3}-\d{3}-\d{4}$"
+                                       title="Phone must be in the format ###-###-####">
+                            </td>
+                            <td><label for="ssn">Social Security Number</label></td>
+                            <td>
+                                <input type="text" id="ssn" name="ContactInfoes[0].social_security_number" required
+                                       pattern="^\d{3}-\d{2}-\d{4}$"
+                                       title="SSN must be in the format ###-##-####">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button type="submit" id="save-btn">Submit</button>
+                                <button type="button" id="deleteUserBtn">Delete</button>
+                                <button type="reset">Reset</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+            </div>
+            <div class="container">
+                <form method="get" action="/Bank/BankDataView">
+                    <select id="searchFilter" name="searchFilter">
+                        <option value="">All Fields</option>
+                        <option value="UserID">User ID</option>
+                        <option value="FirstName">First Name</option>
+                        <option value="LastName">Last Name</option>
+                        <option value="DateOfBirth">Date of Birth</option>
+                        <option value="AccountCreated">Account Created</option>
+                        <option value="Email">Email</option>
+                        <option value="Phone">Phone</option>
+                        <option value="SSN">SSN</option>
+                        <option value="Address">Address</option>
+                        <option value="City">City</option>
+                        <option value="State">State</option>
+                        <option value="Zipcode">Zipcode</option>
+                    </select>
+                    <input type="text" id="searchText" name="searchText" placeholder="Search..." value="@Request.QueryString["searchText"]">
+                    <button type="submit">Search</button>
+                </form>
+                @*checks to see if any user entrys exist*@
+                @if (users != null && users.Any())
+                {
+    <div class="table-container">
+        <table id="bankTable" border="1">
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Date of Birth</th>
+                    <th>Account Created</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>SSN</th>
+                    <th>Address</th>
+                    <th>City</th>
+                    <th>State</th>
+                    <th>Zipcode</th>
+                </tr>
+            </thead>
+            <tbody>
+                @*goes through each entry within users*@
+                @foreach (var user in users)
+                {
+<tr>
+    <td class="user-id" data-filter="UserID" style="cursor:pointer; color: blue; text-decoration: underline;" data-userid="@user.userid">
+        @user.userid
+    </td>
+    <td data-filter="FirstName">@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(user.first_name)</td>
+    <td data-filter="LastName">@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(user.last_name)</td>
+    <td data-filter="DateOfBirth">@user.date_of_birth.ToString("MM/dd/yyyy")</td>
+    <td data-filter="AccountCreated">@user.account_creation_date.ToString("MM/dd/yyyy")</td>
+    <td data-filter="Email">@(user.ContactInfoes.FirstOrDefault()?.email_address ?? "N/A")</td>
+    <td data-filter="Phone">@(user.ContactInfoes.FirstOrDefault()?.phone_number ?? "N/A")</td>
+    <td data-filter="SSN">@(user.ContactInfoes.FirstOrDefault()?.social_security_number ?? "N/A")</td>
+    <td data-filter="Address">@(user.Addresses.FirstOrDefault()?.road_name ?? "N/A")</td>
+    <td data-filter="City">@(user.Addresses.FirstOrDefault()?.city ?? "N/A")</td>
+    <td data-filter="State">@(user.Addresses.FirstOrDefault()?.state ?? "N/A")</td>
+    <td data-filter="Zipcode">@(user.Addresses.FirstOrDefault()?.zip_code ?? "N/A")</td>
+</tr>}
+            </tbody>
+        </table>
+    </div> } @*if there is no other user data disdisplays no data available*@ else
+                {
+    <p>No data available.</p>}
+            </div>
+        </div>
+        <footer></footer>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            //when teh searchText input is used it gets the text that was put into the search text box and finds user column data which matches
+            //what was put in
+            $('#searchText').on('input', function () {
+                let query = $(this).val().toLowerCase();
+                let filter = $('#searchFilter').val();
+
+                $("#bankTable tbody tr").each(function () {
+                    let row = $(this);
+                    let text = filter ? row.find(`td[data-filter="${filter}"]`).text().toLowerCase() : row.text().toLowerCase();
+                    row.toggle(text.includes(query));
+                });
+            });
+
+            //this function is used to get all the data realted to the selected user-id
+            $(".user-id").on("click", function () {
+                let row = $(this).closest("tr");
+                let userId = $(this).data("userid");
+
+                $("#userId").val(userId);
+
+                $("#firstName").val(row.find("td[data-filter='FirstName']").text().trim());
+                $("#lastName").val(row.find("td[data-filter='LastName']").text().trim());
+                $("#email").val(row.find("td[data-filter='Email']").text().trim());
+                $("#confirmEmail").val(row.find("td[data-filter='Email']").text().trim());
+                $("#dob").val(formatDate(row.find("td[data-filter='DateOfBirth']").text().trim()));
+                $("#accountCreated").val(formatDate(row.find("td[data-filter='AccountCreated']").text().trim()));
+                $("#road").val(row.find("td[data-filter='Address']").text().trim());
+                $("#city").val(row.find("td[data-filter='City']").text().trim());
+                $("#state").val(row.find("td[data-filter='State']").text().trim());
+                $("#zipcode").val(row.find("td[data-filter='Zipcode']").text().trim());
+                $("#phone").val(row.find("td[data-filter='Phone']").text().trim());
+                $("#ssn").val(row.find("td[data-filter='SSN']").text().trim());
+            });
+
+            //deleteUserBtn when clicked gets the selected userId which was clicked on and gets all records releated to that userid and
+            //removes thoughs records from the database
+            $('#deleteUserBtn').on('click', function () {
+                const userId = $('#userId').val();
+                if (userId && confirm('Are you sure you want to delete this user and all related records?')) {
+                    window.location.href = `/Bank/DeleteUser?userId=${userId}`;
+                }
+            });
+
+            //formatDate is used to display the date properly from the database
+            function formatDate(dateStr) {
+                let parts = dateStr.split("/");
+                return parts.length === 3 ? `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}` : "";
+            }
+
+            //validateForm function is used to check the email and enforce non-null rules
+            window.validateForm = function () {
+                const email = document.getElementById("email").value.trim();
+                const confirmEmail = document.getElementById("confirmEmail").value.trim();
+                const phone = document.getElementById("phone").value.trim();
+                const ssn = document.getElementById("ssn").value.trim();
+
+                if (!email || !confirmEmail || !phone || !ssn) {
+                    alert("Email, Confirm Email, Phone, and SSN fields must not be empty.");
+                    return false;
+                }
+                if (email !== confirmEmail) {
+                    alert("Emails do not match.");
+                    return false;
+                }
+                return true;
+            }
+        });
+    </script>
+</body>
+</html>
